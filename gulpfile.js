@@ -26,4 +26,4 @@ gulp.task('scss', () => {
     .pipe(gulp.dest('app/css/'));
 });
 
-
+gulp.task('clean', () => del('dist'));
