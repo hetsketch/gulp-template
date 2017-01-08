@@ -1,0 +1,18 @@
+//This mixin adds font with name $name which is in $path folder.
+//In my case this is "../fonts/FONT-NAME/"
+//Usage: just add @include add-font(FONT-NAME)
+@mixin add-font($name, $weight:normal, $style:normal) {
+  $path: "../fonts/" + $name + "/";
+  @font-face {
+    font-family: quote($name);
+    src: url($path + $name + ".eot");
+    src: url($path + $name + ".eot?#iefix") format('embedded-opentype'),
+    url($path + $name + ".woff") format('woff'),
+    url($path + $name + ".ttf") format('truetype'),
+    url($path + $name + ".svg") format('svg');
+    font-weight: $weight;
+    font-style: $style;
+  }
+}
+
+@include add-font(Roboto-Thin)
