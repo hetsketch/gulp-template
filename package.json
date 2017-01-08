@@ -13,7 +13,6 @@
   "author": "hetsketch",
   "license": "MIT",
   "devDependencies": {
-    "balanced-match": "^0.4.2",
     "bower": "^1.8.0",
     "browser-sync": "^2.18.5",
     "concat-map": "0.0.1",
@@ -30,6 +29,9 @@
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^3.0.0",
     "gulp-sourcemaps": "^1.9.1",
+    "gulp-ttf-svg": "^1.0.1",
+    "gulp-ttf2eot": "^1.1.1",
+    "gulp-ttf2woff": "^1.1.0",
     "gulp-uglifyjs": "^0.6.2",
     "imagemin-pngquant": "^5.0.0"
   }
