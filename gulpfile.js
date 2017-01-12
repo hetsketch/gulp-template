@@ -40,13 +40,14 @@ const paths = {
   },
   js: {
     src: 'app/js/**/*.js',
-    dest: 'dist/js/'
+    devDest: 'app/js',
+    prodDest: 'dist/js/'
   },
   libs: {
     src: 'app/libs/**/*min.js',
     devDest: 'app/js',
     prodDest: 'dist/js/'
-  }, 
+  },
   app: {
     all: 'app/**/*.*'
   }
@@ -74,7 +75,9 @@ gulp.task('scss', () => {
 });
 
 gulp.task('images', () => {
-  return gulp.src(paths.images.src, {since: gulp.lastRun('images')})//only files that have changed since last run
+  return gulp.src(paths.images.src)
+  //only new images pass
+    .pipe(newer(paths.images.dest))
     .pipe(imagemin({
       progressive: true,
       use: [pngquant()]
@@ -92,7 +95,6 @@ gulp.task('clean', () => del('dist'));
 
 gulp.task('watch', () => {
   gulp.watch(paths.scss.src, gulp.series('scss'));
-  gulp.watch(paths.images.src, gulp.series('images'));
   gulp.watch(paths.fonts.src, gulp.series('fonts:convert'));
 });
 
@@ -130,19 +132,21 @@ gulp.task('fonts', gulp.series('fonts:convert', () => {
 }));
 
 gulp.task('js', () => {
-  gulp.src(paths.js.src)
+  return gulp.src(paths.js.src)
     .pipe(concat('scripts.js'))
     .pipe(uglify())
-    .pipe(gulp.dest(paths.js.dest));
+    .pipe(gulp.dest(paths.js.devDest))
+    .pipe(gulpIf(!isDev, gulp.dest(paths.js.prodDest)));
 });
 
 gulp.task('libs', () => {
-  gulp.src(paths.libs.src)
+  return gulp.src(paths.libs.src)
     .pipe(concat('libs.js'))
     .pipe(gulp.dest(paths.libs.devDest))
-    .pipe(gulp.dest(paths.libs.prodDest));
+    .pipe(gulpIf(!isDev, gulp.dest(paths.libs.prodDest)));
 });
 
-gulp.task('dev', gulp.series('scss', 'fonts:convert', gulp.parallel('watch', 'serve')));
+gulp.task('dev', gulp.series('scss', 'fonts:convert','libs', 'js', gulp.parallel('watch', 'serve')));
 
-gulp.task('build', gulp.series('clean', gulp.parallel('scss', 'images', 'fonts')));
+//before run the task, set process.env.NODE_ENV to PROD
+gulp.task('prod', gulp.series('clean', gulp.parallel('scss', 'images', 'fonts', 'libs', 'js')));
