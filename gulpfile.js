@@ -1,35 +1,26 @@
 'use strict';
 
-const gulp = require('gulp'),
-  sass = require('gulp-sass'),
-  browserSync = require('browser-sync').create(),
-  concat = require('gulp-concat'),//files concatination
-  uglify = require('gulp-uglifyjs'),//js compression
-  cssnano = require('gulp-cssnano'),
-  rename = require('gulp-rename'),
-  del = require('del'),
-  imagemin = require('gulp-imagemin'),
-  pngquant = require('imagemin-pngquant'),
-  cache = require('gulp-cache'),
-  autoprefixer = require('gulp-autoprefixer'),
-  gulpIf = require('gulp-if'),
-  sourcemaps = require('gulp-sourcemaps'),
-  newer = require('gulp-newer'),
-  notify = require('gulp-notify'),
-  ttf2eot = require('gulp-ttf2eot'),
-  ttf2woff = require('gulp-ttf2woff'),
-  ttf2svg = require('gulp-ttf-svg');
+const gulp = require('gulp');
+const $ = require('gulp-load-plugins')({
+  pattern: ['gulp-*', 'gulp.*'],
+  replaceString: /\bgulp[\-.]/,
+  lazy: true,
+  camelize: true
+});
+const del = require('del'),
+  browserSync = require('browser-sync'), 
+  pngquant = require('imagemin-pngquant');
 
 const isDev = !process.env.NODE_ENV || process.env.NODE_ENV == "dev";
 
 const paths = {
   scss: {
-    src: 'app/scss/**/.scss',
+    src: 'app/scss/**/*.scss',
     devDest: 'app/css/',
     prodDest: 'dist/css/'
   },
   fonts: {
-    src: 'app/fonts/**/.ttf',
+    src: 'app/fonts/**/*.ttf',
     all: 'app/fonts/**/*.*',
     devDest: 'app/fonts/',
     prodDest: 'dist/fonts/'
@@ -44,7 +35,7 @@ const paths = {
     prodDest: 'dist/js/'
   },
   libs: {
-    src: 'app/libs/**/*min.js',
+    src: 'app/libs/**/*.min.js',
     devDest: 'app/js',
     prodDest: 'dist/js/'
   },
@@ -56,17 +47,17 @@ const paths = {
 //just convert .scss files to .css and put them to appropriate folder
 gulp.task('scss', () => {
   return gulp.src(paths.scss.src, {since: gulp.lastRun('scss')})
-    .pipe(gulpIf(isDev, sourcemaps.init()))
-    .pipe(sass())
-    .on('error', notify.onError((err) => {
+    .pipe($.if(isDev, $.sourcemaps.init()))
+    .pipe($.sass())
+    .on('error', $.notify.onError((err) => {
       return {
         title: 'Error in scss',
         message: err.message
       };
     }))
-    .pipe(gulpIf(isDev, sourcemaps.write()))
+    .pipe($.if(isDev, $.sourcemaps.write()))
     .pipe(
-      gulpIf(isDev,
+      $.if(isDev,
         //true
         gulp.dest(paths.scss.devDest),
         //false
@@ -77,12 +68,12 @@ gulp.task('scss', () => {
 gulp.task('images', () => {
   return gulp.src(paths.images.src)
   //only new images pass
-    .pipe(newer(paths.images.dest))
-    .pipe(imagemin({
+    .pipe($.newer(paths.images.dest))
+    .pipe($.imagemin({
       progressive: true,
       use: [pngquant()]
     }))
-    .on('error', notify.onError((err) => {
+    .on('error', $.notify.onError((err) => {
       return {
         title: 'Error in images',
         message: err.message
@@ -108,19 +99,19 @@ gulp.task('serve', () => {
 
 gulp.task('ttf2eot', () => {
   return gulp.src(paths.fonts.src, {since: gulp.lastRun('ttf2eot')})
-    .pipe(ttf2eot())
+    .pipe($.ttf2eot())
     .pipe(gulp.dest(paths.fonts.devDest));
 });
 
 gulp.task('ttf2woff', () => {
   return gulp.src(paths.fonts.src, {since: gulp.lastRun('ttf2woff')})
-    .pipe(ttf2woff())
+    .pipe($.ttf2woff())
     .pipe(gulp.dest(paths.fonts.devDest));
 });
 
 gulp.task('ttf2svg', () => {
   return gulp.src(paths.fonts.src, {since: gulp.lastRun('ttf2svg')})
-    .pipe(ttf2svg())
+    .pipe($.ttfSvg())
     .pipe(gulp.dest(paths.fonts.devDest));
 });
 
@@ -133,17 +124,17 @@ gulp.task('fonts', gulp.series('fonts:convert', () => {
 
 gulp.task('js', () => {
   return gulp.src(paths.js.src)
-    .pipe(concat('scripts.js'))
-    .pipe(uglify())
+    .pipe($.concat('scripts.js'))
+    .pipe($.uglify())
     .pipe(gulp.dest(paths.js.devDest))
-    .pipe(gulpIf(!isDev, gulp.dest(paths.js.prodDest)));
+    .pipe($.if(!isDev, gulp.dest(paths.js.prodDest)));
 });
 
 gulp.task('libs', () => {
   return gulp.src(paths.libs.src)
-    .pipe(concat('libs.js'))
+    .pipe($.concat('libs.min.js'))
     .pipe(gulp.dest(paths.libs.devDest))
-    .pipe(gulpIf(!isDev, gulp.dest(paths.libs.prodDest)));
+    .pipe($.if(!isDev, gulp.dest(paths.libs.prodDest)));
 });
 
 gulp.task('dev', gulp.series('scss', 'fonts:convert','libs', 'js', gulp.parallel('watch', 'serve')));
