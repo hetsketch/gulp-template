@@ -1,0 +1,22 @@
+{
+  "name": "gulp-template",
+  "description": "Gulp template for my projects",
+  "main": "index.js",
+  "authors": [
+    "hetsketch"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "template",
+    "gulp"
+  ],
+  "homepage": "https://github.com/hetsketch/gulp-template",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
